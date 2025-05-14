@@ -65,16 +65,25 @@ def traducir_espanol_a_griego(texto):
             i += 1
     return ''.join(resultado)
 
-def crear_enlace_whatsapp(texto_principal, texto_a_copiar, es_griego=False):
-    enlace_app = "https://codigogriego-fgp3p4m4lihddwqvxb3ptry.streamlit.app/"
-    instruccion = "\n\n🔁 ¿Quieres traducir este texto? Visita: " + enlace_app
+def crear_enlace_whatsapp(texto_principal, es_griego=False):
+    enlace_app = "https://codigogriego-fgp3p4mlihddwqvxb3ptry.streamlit.app/"
     
     if es_griego:
         instruccion = "\n\n🔁 ¿Quieres traducir este código griego? Visita: " + enlace_app
+    else:
+        instruccion = "\n\n🔁 ¿Quieres convertir texto a griego? Visita: " + enlace_app
     
     mensaje_completo = texto_principal + instruccion
     texto_codificado = urllib.parse.quote(mensaje_completo)
     return f"https://wa.me/?text={texto_codificado}"
+
+# Inicialización del estado de sesión
+if 'texto_compartir' not in st.session_state:
+    st.session_state.texto_compartir = ""
+if 'texto_a_copiar' not in st.session_state:
+    st.session_state.texto_a_copiar = ""
+if 'es_griego' not in st.session_state:
+    st.session_state.es_griego = False
 
 # Configuración del sidebar
 with st.sidebar:
@@ -90,7 +99,7 @@ with st.sidebar:
     """)
     st.markdown("---")
     st.markdown("### Compartir esta app:")
-    st.markdown(f"[![WhatsApp](https://img.shields.io/badge/Compartir_en-WhatsApp-25D366?style=for-the-badge&logo=whatsapp)]({crear_enlace_whatsapp('¡Mira esta app para traducir código griego!', '', False)})")
+    st.markdown(f"[![WhatsApp](https://img.shields.io/badge/Compartir_en-WhatsApp-25D366?style=for-the-badge&logo=whatsapp)]({crear_enlace_whatsapp('¡Mira esta app para traducir código griego!', False)})")
 
 # Configuración de la aplicación principal
 st.title("🔠 Generador y Traductor de Código Griego")
@@ -131,14 +140,13 @@ else:
             st.warning("Por favor introduce un código en griego para traducir.")
 
 # Mostrar botones de acción
-if 'texto_compartir' in st.session_state and st.session_state.texto_compartir:
+if st.session_state.texto_compartir:
     col1, col2 = st.columns(2)
     
     with col1:
         # Botón de WhatsApp con enlace de retorno
         enlace_whatsapp = crear_enlace_whatsapp(
             st.session_state.texto_compartir,
-            st.session_state.texto_a_copiar,
             st.session_state.es_griego
         )
         st.markdown(f"""
