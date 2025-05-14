@@ -65,8 +65,15 @@ def traducir_espanol_a_griego(texto):
             i += 1
     return ''.join(resultado)
 
-def crear_enlace_whatsapp(texto):
-    texto_codificado = urllib.parse.quote(texto)
+def crear_enlace_whatsapp(texto_principal, texto_a_copiar, es_griego=False):
+    enlace_app = "https://codigogriego-fgp3p4m4lihddwqvxb3ptry.streamlit.app/"
+    instruccion = "\n\n🔁 ¿Quieres traducir este texto? Visita: " + enlace_app
+    
+    if es_griego:
+        instruccion = "\n\n🔁 ¿Quieres traducir este código griego? Visita: " + enlace_app
+    
+    mensaje_completo = texto_principal + instruccion
+    texto_codificado = urllib.parse.quote(mensaje_completo)
     return f"https://wa.me/?text={texto_codificado}"
 
 # Configuración del sidebar
@@ -81,6 +88,9 @@ with st.sidebar:
     - **Minúsculas**: α β γ δ ε ζ η θ ι κ λ μ ν ξ ο π ρ σ/ς τ υ φ χ ψ ω
     - **Mayúsculas**: Α Β Γ Δ Ε Ζ Η Θ Ι Κ Λ Μ Ν Ξ Ο Π Ρ Σ Τ Υ Φ Χ Ψ Ω
     """)
+    st.markdown("---")
+    st.markdown("### Compartir esta app:")
+    st.markdown(f"[![WhatsApp](https://img.shields.io/badge/Compartir_en-WhatsApp-25D366?style=for-the-badge&logo=whatsapp)]({crear_enlace_whatsapp('¡Mira esta app para traducir código griego!', '', False)})")
 
 # Configuración de la aplicación principal
 st.title("🔠 Generador y Traductor de Código Griego")
@@ -99,9 +109,9 @@ if opcion == "Generar código griego":
             st.subheader("Resultado:")
             st.code(texto_griego, language=None)
             
-            # Añadir botón de copiado alternativo
             st.session_state.texto_compartir = f"Código Griego generado:\n{texto_griego}"
             st.session_state.texto_a_copiar = texto_griego
+            st.session_state.es_griego = True
         else:
             st.warning("Por favor introduce un texto para generar el código griego.")
 else:
@@ -116,20 +126,25 @@ else:
             
             st.session_state.texto_compartir = f"Traducción del griego:\nOriginal: {texto_griego}\nTraducción: {texto_traducido}"
             st.session_state.texto_a_copiar = texto_traducido
+            st.session_state.es_griego = False
         else:
             st.warning("Por favor introduce un código en griego para traducir.")
 
-# Mostrar botón de WhatsApp y alternativa de copiado
+# Mostrar botones de acción
 if 'texto_compartir' in st.session_state and st.session_state.texto_compartir:
-    enlace_whatsapp = crear_enlace_whatsapp(st.session_state.texto_compartir)
-    
     col1, col2 = st.columns(2)
+    
     with col1:
-        # Botón de WhatsApp
+        # Botón de WhatsApp con enlace de retorno
+        enlace_whatsapp = crear_enlace_whatsapp(
+            st.session_state.texto_compartir,
+            st.session_state.texto_a_copiar,
+            st.session_state.es_griego
+        )
         st.markdown(f"""
         <a href="{enlace_whatsapp}" target="_blank">
             <button style="background-color:#25D366;color:white;border-radius:5px;padding:10px 20px;width:100%">
-                📋 Compartir en WhatsApp
+                📤 Compartir en WhatsApp
             </button>
         </a>
         """, unsafe_allow_html=True)
@@ -137,7 +152,7 @@ if 'texto_compartir' in st.session_state and st.session_state.texto_compartir:
     with col2:
         # Alternativa para copiar el texto
         st.code(st.session_state.texto_a_copiar, language=None)
-        if st.button("Seleccionar texto para copiar"):
+        if st.button("📋 Seleccionar texto para copiar", use_container_width=True):
             st.success("Texto seleccionado. Usa Ctrl+C para copiarlo")
 
 # Pie de página
