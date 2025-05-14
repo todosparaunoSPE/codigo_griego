@@ -65,17 +65,15 @@ def traducir_espanol_a_griego(texto):
             i += 1
     return ''.join(resultado)
 
-def crear_enlace_whatsapp(texto_principal, es_griego=False):
+def crear_mensaje_whatsapp(texto_principal, es_griego=True):
     enlace_app = "https://codigogriego-fgp3p4mlihddwqvxb3ptry.streamlit.app/"
     
     if es_griego:
-        instruccion = "\n\n🔁 ¿Quieres traducir este código griego? Visita: " + enlace_app
+        instruccion = f"\n\n🔁 ¿Quieres traducir este código griego a español? Visita: {enlace_app}"
     else:
-        instruccion = "\n\n🔁 ¿Quieres convertir texto a griego? Visita: " + enlace_app
+        instruccion = f"\n\n🔁 ¿Quieres convertir texto español a griego? Visita: {enlace_app}"
     
-    mensaje_completo = texto_principal + instruccion
-    texto_codificado = urllib.parse.quote(mensaje_completo)
-    return f"https://wa.me/?text={texto_codificado}"
+    return texto_principal + instruccion
 
 # Inicialización del estado de sesión
 if 'texto_compartir' not in st.session_state:
@@ -99,7 +97,14 @@ with st.sidebar:
     """)
     st.markdown("---")
     st.markdown("### Compartir esta app:")
-    st.markdown(f"[![WhatsApp](https://img.shields.io/badge/Compartir_en-WhatsApp-25D366?style=for-the-badge&logo=whatsapp)]({crear_enlace_whatsapp('¡Mira esta app para traducir código griego!', False)})")
+    mensaje_app = crear_mensaje_whatsapp("¡Descubre esta increíble app para traducir código griego!", False)
+    st.markdown(f"""
+    <a href="https://wa.me/?text={urllib.parse.quote(mensaje_app)}" target="_blank">
+        <button style="background-color:#25D366;color:white;border-radius:5px;padding:10px 20px;width:100%">
+            📤 Compartir App en WhatsApp
+        </button>
+    </a>
+    """, unsafe_allow_html=True)
 
 # Configuración de la aplicación principal
 st.title("🔠 Generador y Traductor de Código Griego")
@@ -118,7 +123,7 @@ if opcion == "Generar código griego":
             st.subheader("Resultado:")
             st.code(texto_griego, language=None)
             
-            st.session_state.texto_compartir = f"Código Griego generado:\n{texto_griego}"
+            st.session_state.texto_compartir = texto_griego
             st.session_state.texto_a_copiar = texto_griego
             st.session_state.es_griego = True
         else:
@@ -133,7 +138,7 @@ else:
             st.subheader("Resultado:")
             st.code(texto_traducido, language=None)
             
-            st.session_state.texto_compartir = f"Traducción del griego:\nOriginal: {texto_griego}\nTraducción: {texto_traducido}"
+            st.session_state.texto_compartir = texto_traducido
             st.session_state.texto_a_copiar = texto_traducido
             st.session_state.es_griego = False
         else:
@@ -145,10 +150,11 @@ if st.session_state.texto_compartir:
     
     with col1:
         # Botón de WhatsApp con enlace de retorno
-        enlace_whatsapp = crear_enlace_whatsapp(
+        mensaje_whatsapp = crear_mensaje_whatsapp(
             st.session_state.texto_compartir,
             st.session_state.es_griego
         )
+        enlace_whatsapp = f"https://wa.me/?text={urllib.parse.quote(mensaje_whatsapp)}"
         st.markdown(f"""
         <a href="{enlace_whatsapp}" target="_blank">
             <button style="background-color:#25D366;color:white;border-radius:5px;padding:10px 20px;width:100%">
